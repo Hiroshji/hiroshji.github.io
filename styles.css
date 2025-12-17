@@ -1,0 +1,615 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    background: url('backgrounds/image4.webp') center/cover no-repeat fixed;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(0, 0, 0, 0.05) 100%);
+    backdrop-filter: blur(0px) saturate(120%);
+    -webkit-backdrop-filter: blur(2px) saturate(120%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Desktop */
+.desktop {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Desktop Icons */
+.desktop-icons {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.desktop-icon {
+    position: absolute;
+    width: 80px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+    border-radius: 8px;
+    padding: 8px;
+    will-change: transform;
+}
+
+.desktop-icon.dragging {
+    opacity: 0.8;
+    z-index: 1000;
+    cursor: grabbing;
+}
+
+.icon-image {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.icon-label {
+    color: white;
+    font-size: 11px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+    max-width: 80px;
+    word-wrap: break-word;
+}
+
+/* Mac-Style Windows */
+.window {
+    position: absolute;
+    width: 640px;
+    height: 420px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(240, 242, 248, 0.96)),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.56));
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    box-shadow:
+        0 28px 80px rgba(15, 23, 42, 0.28),
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 0 0 1px rgba(15, 23, 42, 0.06);
+    display: none;
+    z-index: 100;
+    overflow: hidden;
+    min-width: 420px;
+    min-height: 320px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: left, top;
+}
+
+.window.active {
+    display: block;
+    z-index: 101;
+    box-shadow:
+        0 30px 90px rgba(15, 23, 42, 0.34),
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.window.maximized {
+    width: calc(100vw - 4px) !important;
+    height: calc(100vh - 52px) !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 0;
+}
+
+.window.dragging {
+    opacity: 1;
+    box-shadow: none;
+    transform: none;
+    transition: none;
+}
+
+.window-header {
+    height: 44px;
+    position: relative;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, rgba(246, 248, 255, 0.9), rgba(233, 238, 251, 0.82));
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
+}
+
+.window-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(21, 33, 58, 0.9);
+    letter-spacing: 0.15px;
+    pointer-events: none;
+}
+
+/* Visual debug helper when pointerdown is detected */
+.dragging-start {
+    outline: none;
+    transition: none;
+}
+
+
+.window-controls {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    display: flex;
+    gap: 10px;
+    z-index: 30;
+    cursor: default;
+    pointer-events: auto;
+}
+
+
+.window-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    position: relative;
+    padding: 0;
+    font-size: 0;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.window-btn.close {
+    background: linear-gradient(180deg, #ff7b72, #ff4d42);
+}
+
+.window-btn.minimize {
+    background: linear-gradient(180deg, #ffd666, #ffb020);
+}
+
+.window-btn.maximize {
+    background: linear-gradient(180deg, #7adf8b, #35c759);
+}
+
+.window-btn:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+.window:hover .window-btn.close::after,
+.window:hover .window-btn.minimize::after,
+.window:hover .window-btn.maximize::after {
+    opacity: 1;
+}
+
+.window-btn.close::after {
+    content: '×';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: #4d0000;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.window-btn.minimize::after {
+    content: '−';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: #975500;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.window-btn.maximize::after {
+    content: '⤢';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    font-size: 8px;
+    color: #004d00;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.window-btn:active {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.window-btn.close:hover {
+    background: #c42b1c;
+    color: white;
+}
+
+.window-content {
+    height: calc(100% - 40px);
+    padding: 24px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 0 0 10px 10px;
+}
+
+/* Hide scrollbar */
+.window-content::-webkit-scrollbar {
+    display: none;
+}
+
+.window-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.project-content h2 {
+    color: #333;
+    margin-bottom: 16px;
+    font-size: 24px;
+}
+
+.project-content p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(145deg, #e0e0e0, #c0c0c0);
+    border: 2px dashed #999;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-style: italic;
+}
+
+.placeholder-image::before {
+    content: 'Image placeholder - Add your project image here';
+}
+
+/* Mac Dock */
+.dock {
+    position: fixed;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 8px;
+}
+
+.dock-container {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 24px;
+    padding: 8px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+        0 1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.dock-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    transform-origin: bottom center;
+    will-change: transform;
+}
+
+.dock-icon:hover {
+    transform: translateY(-12px) scale(1.3);
+}
+
+/* Magnification effect for adjacent icons */
+.dock-icon:hover+.dock-icon,
+.dock-icon:has(+ .dock-icon:hover) {
+    transform: translateY(-6px) scale(1.15);
+}
+
+.dock-icon-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    object-fit: contain;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    padding: 2px;
+}
+
+.dock-icon:hover .dock-icon-image {
+    transform: scale(1.05);
+}
+
+/* Divider between app groups */
+.dock-divider {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom,
+            transparent,
+            rgba(255, 255, 255, 0.3) 20%,
+            rgba(255, 255, 255, 0.3) 80%,
+            transparent);
+    margin: 0 4px;
+    align-self: center;
+}
+
+.start-button {
+    width: 48px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    margin: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.start-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.start-button:active {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(0.96);
+}
+
+.start-icon {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.taskbar-icons {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.taskbar-icon {
+    width: 44px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.taskbar-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.taskbar-icon:active {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(0.96);
+}
+
+.taskbar-icon-image {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    position: relative;
+}
+
+.folder-icon::before {
+    content: '📁';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.portfolio-icon::before {
+    content: '🎨';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.contact-icon::before {
+    content: '📧';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.about-icon::before {
+    content: 'ℹ️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+}
+
+.system-tray {
+    margin-left: auto;
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.time {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+}
+
+.taskbar-icon[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1001;
+    margin-bottom: 4px;
+}
+
+/* Animations */
+@keyframes windowOpen {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.window.opening {
+    animation: windowOpen 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .desktop-icon {
+        width: 70px;
+        height: 80px;
+    }
+
+    .icon-image {
+        width: 40px;
+        height: 40px;
+    }
+
+    .window {
+        width: 90vw;
+        height: 70vh;
+    }
+
+    .dock-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .dock-icon-image {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktop-icon {
+        width: 60px;
+        height: 70px;
+    }
+
+    .icon-image {
+        width: 36px;
+        height: 36px;
+    }
+
+    .icon-label {
+        font-size: 10px;
+    }
+
+    .dock {
+        bottom: 4px;
+    }
+
+    .dock-container {
+        gap: 6px;
+        padding: 6px;
+        border-radius: 16px;
+    }
+
+    .dock-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .dock-icon-image {
+        font-size: 24px;
+        border-radius: 12px;
+    }
+
+    .dock-icon:hover {
+        transform: translateY(-8px) scale(1.2);
+    }
+
+    /* Reposition icons for mobile */
+    .desktop-icon[style*="left: 350px"] {
+        left: 50px !important;
+        top: 380px !important;
+    }
+
+    .desktop-icon[style*="left: 250px"] {
+        left: 150px !important;
+    }
+}
