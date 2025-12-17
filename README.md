@@ -1,9 +1,5 @@
 ## small update
-been a hot minute since i last worked on this, decided to do an entire revamp and make it mac themed instead
-some features has been removed but will return soon, like clicking the icons to open tabs
-had to put this project on hold to work on other projects outside of github but im back to finish it.
-
-another update had to delete the repo and start it up again given i had issues to getting it working that i couldnt figure out so appoligies to that and the mistake hopefully wont start again.
+forgot to add the icons/background lmfao
 
 ## Mac-Style Portfolio Website
 
