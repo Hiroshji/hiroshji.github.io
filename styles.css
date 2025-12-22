@@ -139,8 +139,7 @@ body::before {
     height: 44px;
     position: relative;
     border-radius: 16px 16px 0 0;
-    background: linear-gradient(180deg, rgba(246, 248, 255, 0.9), rgba(233, 238, 251, 0.82));
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -150,7 +149,21 @@ body::before {
     cursor: grab;
 }
 
+.window-header::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
 .window-title {
+    position: absolute;
+    top: 12px;
+    left: 80px;
     font-size: 13px;
     font-weight: 600;
     color: rgba(21, 33, 58, 0.9);
@@ -170,7 +183,7 @@ body::before {
     top: 12px;
     left: 14px;
     display: flex;
-    gap: 10px;
+    gap: 6px;
     z-index: 30;
     cursor: default;
     pointer-events: auto;
@@ -178,8 +191,8 @@ body::before {
 
 
 .window-btn {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     border: 0.5px solid rgba(0, 0, 0, 0.08);
     cursor: pointer;
@@ -295,7 +308,6 @@ body::before {
     width: 100%;
     height: 200px;
     background: linear-gradient(145deg, #e0e0e0, #c0c0c0);
-    border: 2px dashed #999;
     border-radius: 4px;
     display: flex;
     align-items: center;

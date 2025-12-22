@@ -142,6 +142,7 @@ class MacDesktop {
             const closeBtn = win.querySelector('.window-btn.close');
             const minimizeBtn = win.querySelector('.window-btn.minimize');
             const maximizeBtn = win.querySelector('.window-btn.maximize');
+            const controls = win.querySelector('.window-controls');
 
             if (closeBtn) {
                 closeBtn.addEventListener('click', (e) => {
@@ -160,8 +161,19 @@ class MacDesktop {
             if (maximizeBtn) {
                 maximizeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    win.classList.toggle('maximized');
-                    this.bringWindowToFront(win);
+                    win.classList.remove('active');
+                });
+            }
+
+            // Allow near-miss clicks around the red/yellow buttons to close the window
+            if (controls) {
+                controls.addEventListener('click', (e) => {
+                    const rect = controls.getBoundingClientRect();
+                    const closeZoneWidth = rect.width + 8; // entire control cluster plus small padding
+                    if (e.clientX <= rect.left + closeZoneWidth) {
+                        e.stopPropagation();
+                        win.classList.remove('active');
+                    }
                 });
             }
         });
