@@ -92,16 +92,15 @@ body::before {
     position: absolute;
     width: 640px;
     height: 420px;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(240, 242, 248, 0.96)),
-        linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.56));
+    background: rgba(255, 251, 250, 0.82);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 251, 250, 0.55);
     border-radius: 16px;
     box-shadow:
-        0 28px 80px rgba(15, 23, 42, 0.28),
-        0 1px 0 rgba(255, 255, 255, 0.7) inset,
-        0 0 0 1px rgba(15, 23, 42, 0.06);
+        0 28px 80px rgba(15, 23, 42, 0.18),
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 0 0 1px rgba(15, 23, 42, 0.04);
     display: none;
     z-index: 100;
     overflow: hidden;
@@ -109,15 +108,16 @@ body::before {
     min-height: 320px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     will-change: left, top;
+    overflow-y: auto;
+    border-radius: 16px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(60, 60, 67, 0.45) transparent;
 }
 
 .window.active {
     display: block;
     z-index: 101;
-    box-shadow:
-        0 30px 90px rgba(15, 23, 42, 0.34),
-        0 1px 0 rgba(255, 255, 255, 0.7) inset,
-        0 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .window.maximized {
@@ -136,10 +136,12 @@ body::before {
 }
 
 .window-header {
-    height: 44px;
-    position: relative;
+    height: 36px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
     border-radius: 16px 16px 0 0;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 251, 250, 1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -154,7 +156,7 @@ body::before {
     position: absolute;
     left: 12px;
     right: 12px;
-    bottom: 0;
+    bottom: 2px;
     height: 2px;
     background: rgba(0, 0, 0, 0.15);
     pointer-events: none;
@@ -162,10 +164,10 @@ body::before {
 
 .window-title {
     position: absolute;
-    top: 12px;
+    top: 7px;
     left: 80px;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 650;
     color: rgba(21, 33, 58, 0.9);
     letter-spacing: 0.15px;
     pointer-events: none;
@@ -180,7 +182,7 @@ body::before {
 
 .window-controls {
     position: absolute;
-    top: 12px;
+    top: 10px;
     left: 14px;
     display: flex;
     gap: 6px;
@@ -191,12 +193,12 @@ body::before {
 
 
 .window-btn {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     border: 0.5px solid rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    transition: none;
     position: relative;
     padding: 0;
     font-size: 0;
@@ -216,53 +218,30 @@ body::before {
 }
 
 .window-btn:hover {
-    filter: brightness(0.95);
-    transform: translateY(-1px);
+    filter: none;
+    transform: none;
 }
 
+/* Keep circles blank — no hover-revealed symbols */
 .window:hover .window-btn.close::after,
 .window:hover .window-btn.minimize::after,
 .window:hover .window-btn.maximize::after {
-    opacity: 1;
+    opacity: 0;
 }
 
 .window-btn.close::after {
-    content: '×';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 10px;
-    color: #4d0000;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.15s ease;
+    content: none;
+    display: none;
 }
 
 .window-btn.minimize::after {
-    content: '−';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 10px;
-    color: #975500;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.15s ease;
+    content: none;
+    display: none;
 }
 
 .window-btn.maximize::after {
-    content: '⤢';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    font-size: 8px;
-    color: #004d00;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.15s ease;
+    content: none;
+    display: none;
 }
 
 .window-btn:active {
@@ -274,22 +253,53 @@ body::before {
     color: white;
 }
 
+/* Match hover darken for yellow and green */
+.window-btn.minimize:hover {
+    background: #e09c1a;
+}
+
+.window-btn.maximize:hover {
+    background: #2ead4f;
+}
+
 .window-content {
-    height: calc(100% - 40px);
+    height: auto;
     padding: 24px;
-    overflow-y: auto;
-    background: rgba(255, 255, 255, 0.95);
+    overflow-y: visible;
+    background: rgba(255, 251, 250, 0.82);
     border-radius: 0 0 10px 10px;
 }
 
-/* Hide scrollbar */
-.window-content::-webkit-scrollbar {
-    display: none;
+/* Scrollbar: minimal macOS-style */
+.window::-webkit-scrollbar {
+    width: 8px;
 }
 
-.window-content {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.window::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.window::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.window::-webkit-scrollbar-thumb {
+    background-color: rgba(60, 60, 67, 0.30);
+    border-radius: 8px;
+}
+
+.window:hover::-webkit-scrollbar {
+    width: 10px;
+}
+
+.window:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(60, 60, 67, 0.45);
 }
 
 .project-content h2 {
@@ -535,8 +545,8 @@ body::before {
 /* Animations */
 @keyframes windowOpen {
     from {
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
+        opacity: 0.45;
+        transform: scale(0.985) translateY(4px);
     }
 
     to {
@@ -546,7 +556,7 @@ body::before {
 }
 
 .window.opening {
-    animation: windowOpen 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: windowOpen 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Responsive adjustments */
