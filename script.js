@@ -99,8 +99,11 @@ class MacDesktop {
                 const boundedX = Math.max(0, Math.min(x, maxX));
                 const boundedY = Math.max(0, Math.min(y, maxY));
 
+                // Use left/top to maintain position (stored for next drag)
                 this.windowDragElement.style.left = `${boundedX}px`;
                 this.windowDragElement.style.top = `${boundedY}px`;
+                this.windowDragElement.dataset.posX = boundedX;
+                this.windowDragElement.dataset.posY = boundedY;
             }
         });
 
@@ -123,6 +126,10 @@ class MacDesktop {
         const windows = document.querySelectorAll('.window');
 
         windows.forEach(win => {
+            // Store initial position for transform calculation
+            win.dataset.posX = win.style.left || '0';
+            win.dataset.posY = win.style.top || '0';
+
             const header = win.querySelector('.window-header');
             if (header) {
                 header.addEventListener('mousedown', (e) => {
@@ -133,6 +140,11 @@ class MacDesktop {
                     this.windowDragOffset.y = e.clientY - rect.top;
                     win.classList.add('dragging', 'dragging-start');
                     this.bringWindowToFront(win);
+                    // Store current position before dragging
+                    this.dragStartPos = {
+                        x: parseFloat(win.dataset.posX) || 0,
+                        y: parseFloat(win.dataset.posY) || 0
+                    };
                     e.preventDefault();
                 });
             }
@@ -189,6 +201,14 @@ class MacDesktop {
 
         const target = document.querySelector(`.window[data-window="${windowId}"]`);
         if (!target) return;
+
+        const isActive = target.classList.contains('active');
+
+        // Toggle behavior: close if already open, else open and focus
+        if (isActive) {
+            target.classList.remove('active');
+            return;
+        }
 
         target.classList.add('active', 'opening');
         this.bringWindowToFront(target);
