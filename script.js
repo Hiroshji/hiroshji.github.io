@@ -56,7 +56,7 @@ class MacDesktop {
                 icon.classList.remove('dragging');
 
                 if (clickedWithoutDrag) {
-                    this.openWindow(icon.dataset.window);
+                    this.openWindow(icon.dataset.window, icon);
                 }
             });
         });
@@ -159,21 +159,21 @@ class MacDesktop {
             if (closeBtn) {
                 closeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    win.classList.remove('active');
+                    this.closeWindow(win);
                 });
             }
 
             if (minimizeBtn) {
                 minimizeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    win.classList.remove('active');
+                    this.closeWindow(win);
                 });
             }
 
             if (maximizeBtn) {
                 maximizeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    win.classList.remove('active');
+                    this.closeWindow(win);
                 });
             }
 
@@ -184,7 +184,7 @@ class MacDesktop {
                     const closeZoneWidth = rect.width + 8; // entire control cluster plus small padding
                     if (e.clientX <= rect.left + closeZoneWidth) {
                         e.stopPropagation();
-                        win.classList.remove('active');
+                        this.closeWindow(win);
                     }
                 });
             }
@@ -196,7 +196,7 @@ class MacDesktop {
         win.style.zIndex = this.zIndexCounter;
     }
 
-    openWindow(windowId) {
+    openWindow(windowId, iconElement) {
         if (!windowId) return;
 
         const target = document.querySelector(`.window[data-window="${windowId}"]`);
@@ -206,14 +206,66 @@ class MacDesktop {
 
         // Toggle behavior: close if already open, else open and focus
         if (isActive) {
-            target.classList.remove('active');
+            this.closeWindow(target);
             return;
+        }
+
+        // Calculate transform origin from icon position
+        if (iconElement) {
+            const iconRect = iconElement.getBoundingClientRect();
+            const windowRect = target.getBoundingClientRect();
+
+            // Icon center position
+            const iconCenterX = iconRect.left + iconRect.width / 2;
+            const iconCenterY = iconRect.top + iconRect.height / 2;
+
+            // Window position (considering it will be positioned absolutely)
+            const windowLeft = parseFloat(target.style.left) || 0;
+            const windowTop = parseFloat(target.style.top) || 0;
+
+            // Calculate origin relative to window position
+            const originX = iconCenterX - windowLeft;
+            const originY = iconCenterY - windowTop;
+
+            target.style.transformOrigin = `${originX}px ${originY}px`;
         }
 
         target.classList.add('active', 'opening');
         this.bringWindowToFront(target);
 
-        setTimeout(() => target.classList.remove('opening'), 250);
+        setTimeout(() => {
+            target.classList.remove('opening');
+            target.style.transformOrigin = ''; // Reset to default
+        }, 350);
+    }
+
+    closeWindow(win) {
+        const windowId = win.dataset.window;
+        const icon = document.querySelector(`.desktop-icon[data-window="${windowId}"]`);
+
+        // Calculate transform origin from icon position
+        if (icon) {
+            const iconRect = icon.getBoundingClientRect();
+            const windowLeft = parseFloat(win.style.left) || 0;
+            const windowTop = parseFloat(win.style.top) || 0;
+
+            const iconCenterX = iconRect.left + iconRect.width / 2;
+            const iconCenterY = iconRect.top + iconRect.height / 2;
+
+            const originX = iconCenterX - windowLeft;
+            const originY = iconCenterY - windowTop;
+
+            win.style.transformOrigin = `${originX}px ${originY}px`;
+        }
+
+        // Remove active but add closing to keep it visible during animation
+        win.classList.remove('active');
+        win.classList.add('closing');
+
+        setTimeout(() => {
+            win.classList.remove('closing');
+            win.style.transformOrigin = '';
+        }, 280);
     }
 
     setupDockMagnification() {
